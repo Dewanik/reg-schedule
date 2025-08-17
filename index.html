@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Weekly Schedule</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#34495e">
+  <link rel="icon" href="icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icon-512.png">
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     h1 { color: #2c3e50; }
@@ -16,35 +21,17 @@
 <body>
   <h1>My Weekly Schedule</h1>
   <div id="currentTask" class="now">Loading current task...</div>
-  
-  <table>
+
+  <h2>Today's Schedule (<span id="todayName"></span>)</h2>
+  <table id="todaySchedule">
+    <tr><th>Time</th><th>Activity</th></tr>
+    <!-- Today's schedule rows will be inserted here -->
+  </table>
+
+  <h2>Weekly Schedule</h2>
+  <table id="weeklySchedule">
     <tr><th>Day</th><th>Time</th><th>Activity</th></tr>
-    <tr><td>Sunday</td><td>8:30 AM – 3:00 PM</td><td>Sleep</td></tr>
-    <tr><td>Sunday</td><td>3:00 PM – 5:30 PM</td><td>Free hours</td></tr>
-    <tr><td>Sunday</td><td>6:00 PM – 6:00 AM (Mon)</td><td>Night shift</td></tr>
-    
-    <tr><td>Monday</td><td>9:05 AM – 9:55 AM</td><td>MATH 430 (class)</td></tr>
-    <tr><td>Monday</td><td>2:30 PM – 3:30 PM</td><td>Study MATH 430</td></tr>
-    <tr><td>Monday</td><td>6:00 PM – 6:00 AM (Tue)</td><td>Night shift</td></tr>
-    
-    <tr><td>Tuesday</td><td>1:35 PM – 2:50 PM</td><td>CMPSC 472 (class)</td></tr>
-    <tr><td>Tuesday</td><td>3:05 PM – 4:05 PM</td><td>Study CMPSC 472</td></tr>
-    <tr><td>Tuesday</td><td>6:00 PM – 9:00 PM</td><td>CMPSC 463 (class/work conflict)</td></tr>
-    
-    <tr><td>Wednesday</td><td>9:05 AM – 9:55 AM</td><td>MATH 430 (class)</td></tr>
-    <tr><td>Wednesday</td><td>2:30 PM – 3:30 PM</td><td>Gym</td></tr>
-    <tr><td>Wednesday</td><td>6:00 PM – 9:00 PM</td><td>CMPSC 313 (class)</td></tr>
-    
-    <tr><td>Thursday</td><td>1:35 PM – 2:50 PM</td><td>CMPSC 472 (class)</td></tr>
-    <tr><td>Thursday</td><td>3:05 PM – 4:05 PM</td><td>Study CMPSC 472</td></tr>
-    <tr><td>Thursday</td><td>6:30 PM – 7:30 PM</td><td>Gym</td></tr>
-    
-    <tr><td>Friday</td><td>9:05 AM – 9:55 AM</td><td>MATH 430 (class)</td></tr>
-    <tr><td>Friday</td><td>10:15 AM – 11:15 AM</td><td>Study MATH 430</td></tr>
-    <tr><td>Friday</td><td>12:45 PM – 1:45 PM</td><td>Gym</td></tr>
-    
-    <tr><td>Saturday</td><td>Daytime</td><td>Free hours</td></tr>
-    <tr><td>Saturday</td><td>6:00 PM – 8:00 AM (Sun)</td><td>Night shift</td></tr>
+    <!-- Weekly schedule rows will be inserted by JS -->
   </table>
 
   <script>
@@ -108,8 +95,79 @@
         "👉 Right now: " + currentTask;
     }
 
+    // Render today's schedule
+    function renderTodaySchedule() {
+      const now = new Date();
+      const day = now.toLocaleString('en-US', { weekday: 'long' });
+      document.getElementById('todayName').innerText = day;
+      const table = document.getElementById('todaySchedule');
+      // Remove old rows except header
+      while (table.rows.length > 1) table.deleteRow(1);
+      if (schedule[day]) {
+        for (let slot of schedule[day]) {
+          let row = table.insertRow();
+          let timeCell = row.insertCell();
+          let activityCell = row.insertCell();
+          // Format time as HH:MM – HH:MM
+          let start = slot.start;
+          let end = slot.end;
+          timeCell.innerText = `${formatTime(start)} – ${formatTime(end)}`;
+          activityCell.innerText = slot.task;
+        }
+      } else {
+        let row = table.insertRow();
+        let cell = row.insertCell();
+        cell.colSpan = 2;
+        cell.innerText = 'No schedule for today.';
+      }
+    }
+
+    // Render weekly schedule
+    function renderWeeklySchedule() {
+      const table = document.getElementById('weeklySchedule');
+      // Remove old rows except header
+      while (table.rows.length > 1) table.deleteRow(1);
+      for (let day in schedule) {
+        for (let slot of schedule[day]) {
+          let row = table.insertRow();
+          let dayCell = row.insertCell();
+          let timeCell = row.insertCell();
+          let activityCell = row.insertCell();
+          dayCell.innerText = day;
+          timeCell.innerText = `${formatTime(slot.start)} – ${formatTime(slot.end)}`;
+          activityCell.innerText = slot.task;
+        }
+      }
+    }
+
+    // Helper to format time as HH:MM AM/PM
+    function formatTime(timeStr) {
+      let [h, m] = timeStr.split(":").map(Number);
+      let ampm = h >= 12 ? 'PM' : 'AM';
+      let hour = h % 12;
+      if (hour === 0) hour = 12;
+      return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+    }
+
     updateTask();
-    setInterval(updateTask, 60000);
+    renderTodaySchedule();
+    renderWeeklySchedule();
+    setInterval(() => {
+      updateTask();
+      renderTodaySchedule();
+    }, 60000);
+
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(function(registration) {
+            console.log('ServiceWorker registration successful:', registration.scope);
+          }, function(err) {
+            console.log('ServiceWorker registration failed:', err);
+          });
+      });
+    }
   </script>
 </body>
 </html>
