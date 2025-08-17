@@ -52,13 +52,13 @@
   </table>
 
   <script>
-    // Store custom schedule items in localStorage by day
+    // Store custom schedule items in memory only (temporary)
+    const customScheduleMemory = {};
     function getCustomItems(day) {
-      let items = localStorage.getItem('customSchedule_' + day);
-      return items ? JSON.parse(items) : [];
+      return customScheduleMemory[day] || [];
     }
     function setCustomItems(day, items) {
-      localStorage.setItem('customSchedule_' + day, JSON.stringify(items));
+      customScheduleMemory[day] = items;
     }
 
     // Render custom schedule for today
