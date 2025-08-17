@@ -21,6 +21,7 @@
 <body>
   <h1>My Weekly Schedule</h1>
   <div id="currentTask" class="now">Loading current task...</div>
+  <div id="comingUp" class="now" style="background:#e1eafc; color:#34495e; margin-bottom:20px;">Loading next activity...</div>
 
   <h2>Today's Schedule (<span id="todayName"></span>)</h2>
   <table id="todaySchedule">
@@ -99,22 +100,61 @@
       const now = new Date();
       const day = now.toLocaleString('en-US', { weekday: 'long' });
       const currentTime = now.getHours() * 60 + now.getMinutes();
-
       let currentTask = "Free / Rest time";
+      let comingUp = "No more activities today.";
+      let foundCurrent = false;
+      let foundNext = false;
       if (schedule[day]) {
-        for (let slot of schedule[day]) {
+        for (let i = 0; i < schedule[day].length; i++) {
+          let slot = schedule[day][i];
           let [sh, sm] = slot.start.split(":").map(Number);
           let [eh, em] = slot.end.split(":").map(Number);
           let startM = sh * 60 + sm;
           let endM = eh * 60 + em;
-          if (currentTime >= startM && currentTime < endM) {
-            currentTask = slot.task;
-            break;
+          // Handle overnight slots (end < start)
+          if (endM <= startM) {
+            if (currentTime >= startM || currentTime < endM) {
+              currentTask = slot.task;
+              foundCurrent = true;
+              // Next activity is the next slot after this one
+              if (i + 1 < schedule[day].length) {
+                let nextSlot = schedule[day][i + 1];
+                comingUp = `${formatTime(nextSlot.start)} – ${formatTime(nextSlot.end)}: ${nextSlot.task}`;
+                foundNext = true;
+              }
+              break;
+            }
+          } else {
+            if (currentTime >= startM && currentTime < endM) {
+              currentTask = slot.task;
+              foundCurrent = true;
+              // Next activity is the next slot after this one
+              if (i + 1 < schedule[day].length) {
+                let nextSlot = schedule[day][i + 1];
+                comingUp = `${formatTime(nextSlot.start)} – ${formatTime(nextSlot.end)}: ${nextSlot.task}`;
+                foundNext = true;
+              }
+              break;
+            }
+          }
+        }
+        // If not found, find the next slot for today
+        if (!foundCurrent) {
+          for (let slot of schedule[day]) {
+            let [sh, sm] = slot.start.split(":").map(Number);
+            let startM = sh * 60 + sm;
+            let [eh, em] = slot.end.split(":").map(Number);
+            let endM = eh * 60 + em;
+            if ((endM > startM && currentTime < startM) || (endM <= startM && currentTime < startM && currentTime < endM)) {
+              comingUp = `${formatTime(slot.start)} – ${formatTime(slot.end)}: ${slot.task}`;
+              foundNext = true;
+              break;
+            }
           }
         }
       }
-      document.getElementById("currentTask").innerText = 
-        "👉 Right now: " + currentTask;
+      document.getElementById("currentTask").innerText = `👉 Right now: ${currentTask}`;
+      document.getElementById("comingUp").innerText = foundNext ? `⏭️ Coming up: ${comingUp}` : "⏭️ No more activities today.";
     }
 
     // Render today's schedule
