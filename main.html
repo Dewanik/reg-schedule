@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weekly Schedule</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { color: #2c3e50; }
+    .now { background: #f1c40f; padding: 10px; margin-bottom: 20px; font-size: 1.2em; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #34495e; color: white; }
+    tr:nth-child(even) { background: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <h1>My Weekly Schedule</h1>
+  <div id="currentTask" class="now">Loading current task...</div>
+  
+  <table>
+    <tr><th>Day</th><th>Time</th><th>Activity</th></tr>
+    <tr><td>Sunday</td><td>8:30 AM – 3:00 PM</td><td>Sleep</td></tr>
+    <tr><td>Sunday</td><td>3:00 PM – 5:30 PM</td><td>Free hours</td></tr>
+    <tr><td>Sunday</td><td>6:00 PM – 6:00 AM (Mon)</td><td>Night shift</td></tr>
+    
+    <tr><td>Monday</td><td>9:05 AM – 9:55 AM</td><td>MATH 430 (class)</td></tr>
+    <tr><td>Monday</td><td>2:30 PM – 3:30 PM</td><td>Study MATH 430</td></tr>
+    <tr><td>Monday</td><td>6:00 PM – 6:00 AM (Tue)</td><td>Night shift</td></tr>
+    
+    <tr><td>Tuesday</td><td>1:35 PM – 2:50 PM</td><td>CMPSC 472 (class)</td></tr>
+    <tr><td>Tuesday</td><td>3:05 PM – 4:05 PM</td><td>Study CMPSC 472</td></tr>
+    <tr><td>Tuesday</td><td>6:00 PM – 9:00 PM</td><td>CMPSC 463 (class/work conflict)</td></tr>
+    
+    <tr><td>Wednesday</td><td>9:05 AM – 9:55 AM</td><td>MATH 430 (class)</td></tr>
+    <tr><td>Wednesday</td><td>2:30 PM – 3:30 PM</td><td>Gym</td></tr>
+    <tr><td>Wednesday</td><td>6:00 PM – 9:00 PM</td><td>CMPSC 313 (class)</td></tr>
+    
+    <tr><td>Thursday</td><td>1:35 PM – 2:50 PM</td><td>CMPSC 472 (class)</td></tr>
+    <tr><td>Thursday</td><td>3:05 PM – 4:05 PM</td><td>Study CMPSC 472</td></tr>
+    <tr><td>Thursday</td><td>6:30 PM – 7:30 PM</td><td>Gym</td></tr>
+    
+    <tr><td>Friday</td><td>9:05 AM – 9:55 AM</td><td>MATH 430 (class)</td></tr>
+    <tr><td>Friday</td><td>10:15 AM – 11:15 AM</td><td>Study MATH 430</td></tr>
+    <tr><td>Friday</td><td>12:45 PM – 1:45 PM</td><td>Gym</td></tr>
+    
+    <tr><td>Saturday</td><td>Daytime</td><td>Free hours</td></tr>
+    <tr><td>Saturday</td><td>6:00 PM – 8:00 AM (Sun)</td><td>Night shift</td></tr>
+  </table>
+
+  <script>
+    const schedule = {
+      "Sunday": [
+        { start: "08:30", end: "15:00", task: "Sleep" },
+        { start: "15:00", end: "17:30", task: "Free hours" },
+        { start: "18:00", end: "24:00", task: "Night shift" }
+      ],
+      "Monday": [
+        { start: "09:05", end: "09:55", task: "MATH 430 (class)" },
+        { start: "14:30", end: "15:30", task: "Study MATH 430" },
+        { start: "18:00", end: "24:00", task: "Night shift" }
+      ],
+      "Tuesday": [
+        { start: "13:35", end: "14:50", task: "CMPSC 472 (class)" },
+        { start: "15:05", end: "16:05", task: "Study CMPSC 472" },
+        { start: "18:00", end: "21:00", task: "CMPSC 463 (class/work conflict)" },
+        { start: "21:00", end: "24:00", task: "Night shift" }
+      ],
+      "Wednesday": [
+        { start: "09:05", end: "09:55", task: "MATH 430 (class)" },
+        { start: "14:30", end: "15:30", task: "Gym" },
+        { start: "18:00", end: "21:00", task: "CMPSC 313 (class)" }
+      ],
+      "Thursday": [
+        { start: "13:35", end: "14:50", task: "CMPSC 472 (class)" },
+        { start: "15:05", end: "16:05", task: "Study CMPSC 472" },
+        { start: "18:30", end: "19:30", task: "Gym" }
+      ],
+      "Friday": [
+        { start: "09:05", end: "09:55", task: "MATH 430 (class)" },
+        { start: "10:15", end: "11:15", task: "Study MATH 430" },
+        { start: "12:45", end: "13:45", task: "Gym" }
+      ],
+      "Saturday": [
+        { start: "06:00", end: "08:00", task: "Night shift" },
+        { start: "18:00", end: "24:00", task: "Night shift" }
+      ]
+    };
+
+    function updateTask() {
+      const now = new Date();
+      const day = now.toLocaleString('en-US', { weekday: 'long' });
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+
+      let currentTask = "Free / Rest time";
+      if (schedule[day]) {
+        for (let slot of schedule[day]) {
+          let [sh, sm] = slot.start.split(":").map(Number);
+          let [eh, em] = slot.end.split(":").map(Number);
+          let startM = sh * 60 + sm;
+          let endM = eh * 60 + em;
+          if (currentTime >= startM && currentTime < endM) {
+            currentTask = slot.task;
+            break;
+          }
+        }
+      }
+      document.getElementById("currentTask").innerText = 
+        "👉 Right now: " + currentTask;
+    }
+
+    updateTask();
+    setInterval(updateTask, 60000);
+  </script>
+</body>
+</html>
