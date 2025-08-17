@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#34495e">
-  <link rel="icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4c5.pn" sizes="192x192">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4c5.png" sizes="192x192">
   <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4c5.png">
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
@@ -19,6 +19,22 @@
   </style>
 </head>
 <body>
+  <h2>Custom Additions for Today (<span id="customTodayName"></span>)</h2>
+  <table id="customSchedule">
+    <tr><th>Time</th><th>Activity</th><th>Action</th></tr>
+    <!-- Custom schedule rows will be inserted here -->
+  </table>
+  <form id="addCustomForm" style="margin-bottom:20px;">
+    <label>
+      Time:
+      <input type="time" id="customTime" required>
+    </label>
+    <label>
+      Activity:
+      <input type="text" id="customActivity" required>
+    </label>
+    <button type="submit">Add to Today's Schedule</button>
+  </form>
   <h1>My Weekly Schedule</h1>
   <div id="currentTask" class="now">Loading current task...</div>
   <div id="comingUp" class="now" style="background:#e1eafc; color:#34495e; margin-bottom:20px;">Loading next activity...</div>
@@ -36,6 +52,62 @@
   </table>
 
   <script>
+    // Store custom schedule items in localStorage by day
+    function getCustomItems(day) {
+      let items = localStorage.getItem('customSchedule_' + day);
+      return items ? JSON.parse(items) : [];
+    }
+    function setCustomItems(day, items) {
+      localStorage.setItem('customSchedule_' + day, JSON.stringify(items));
+    }
+
+    // Render custom schedule for today
+    function renderCustomSchedule() {
+      const now = new Date();
+      const day = now.toLocaleString('en-US', { weekday: 'long' });
+      document.getElementById('customTodayName').innerText = day;
+      const table = document.getElementById('customSchedule');
+      while (table.rows.length > 1) table.deleteRow(1);
+      const items = getCustomItems(day);
+      if (items.length === 0) {
+        let row = table.insertRow();
+        let cell = row.insertCell();
+        cell.colSpan = 3;
+        cell.innerText = 'No custom additions for today.';
+      } else {
+        items.forEach((item, idx) => {
+          let row = table.insertRow();
+          let timeCell = row.insertCell();
+          let activityCell = row.insertCell();
+          let actionCell = row.insertCell();
+          timeCell.innerText = formatTime(item.time);
+          activityCell.innerText = item.activity;
+          let delBtn = document.createElement('button');
+          delBtn.innerText = 'Delete';
+          delBtn.onclick = function() {
+            items.splice(idx, 1);
+            setCustomItems(day, items);
+            renderCustomSchedule();
+          };
+          actionCell.appendChild(delBtn);
+        });
+      }
+    }
+
+    // Handle add custom form
+    document.getElementById('addCustomForm').onsubmit = function(e) {
+      e.preventDefault();
+      const now = new Date();
+      const day = now.toLocaleString('en-US', { weekday: 'long' });
+      const time = document.getElementById('customTime').value;
+      const activity = document.getElementById('customActivity').value;
+      if (!time || !activity) return;
+      let items = getCustomItems(day);
+      items.push({ time, activity });
+      setCustomItems(day, items);
+      renderCustomSchedule();
+      document.getElementById('addCustomForm').reset();
+    };
     const schedule = {
       "Sunday": [
         { start: "18:00", end: "08:00", task: "🌙 Night shift (Sat–Sun)" },
@@ -214,9 +286,11 @@
     updateTask();
     renderTodaySchedule();
     renderWeeklySchedule();
+    renderCustomSchedule();
     setInterval(() => {
       updateTask();
       renderTodaySchedule();
+      renderCustomSchedule();
     }, 60000);
 
     // Register service worker for PWA
