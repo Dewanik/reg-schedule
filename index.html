@@ -51,6 +51,23 @@
     <!-- Weekly schedule rows will be inserted by JS -->
   </table>
 
+  <h2>View a Day's Schedule</h2>
+  <label for="daySelect">Select day: </label>
+  <select id="daySelect" style="margin-bottom:10px;">
+    <option value="Sunday">Sunday</option>
+    <option value="Monday">Monday</option>
+    <option value="Tuesday">Tuesday</option>
+    <option value="Wednesday">Wednesday</option>
+    <option value="Thursday">Thursday</option>
+    <option value="Friday">Friday</option>
+    <option value="Saturday">Saturday</option>
+  </select>
+  <table id="selectedDaySchedule">
+    <tr><th colspan="2">Schedule for <span id="selectedDayName">Monday</span></th></tr>
+    <tr><th>Time</th><th>Activity</th></tr>
+    <!-- Selected day's schedule rows will be inserted here -->
+  </table>
+
   <script>
     // Store custom schedule items in memory only (temporary)
     const customScheduleMemory = {};
@@ -281,10 +298,46 @@ const schedule = {
       return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
     }
 
+    // --- existing code ---
     updateTask();
     renderTodaySchedule();
     renderWeeklySchedule();
     renderCustomSchedule();
+
+    // Dropdown for selecting a day to view its schedule
+    function renderSelectedDaySchedule(day) {
+      const table = document.getElementById('selectedDaySchedule');
+      const dayNameSpan = document.getElementById('selectedDayName');
+      dayNameSpan.innerText = day;
+      while (table.rows.length > 2) table.deleteRow(2); // keep header rows
+      if (schedule[day]) {
+        for (let slot of schedule[day]) {
+          let row = table.insertRow();
+          let timeCell = row.insertCell();
+          let activityCell = row.insertCell();
+          timeCell.innerText = `${formatTime(slot.start)} – ${formatTime(slot.end)}`;
+          activityCell.innerText = slot.task;
+        }
+      } else {
+        let row = table.insertRow();
+        let cell = row.insertCell();
+        cell.colSpan = 2;
+        cell.innerText = 'No schedule for this day.';
+      }
+    }
+
+    // Add event listener for dropdown
+    document.getElementById('daySelect').addEventListener('change', function() {
+      renderSelectedDaySchedule(this.value);
+    });
+    // Set dropdown to today by default
+    (function setDropdownToToday() {
+      const now = new Date();
+      const today = now.toLocaleString('en-US', { weekday: 'long' });
+      document.getElementById('daySelect').value = today;
+      renderSelectedDaySchedule(today);
+    })();
+
     setInterval(() => {
       updateTask();
       renderTodaySchedule();
