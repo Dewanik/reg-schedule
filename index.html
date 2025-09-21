@@ -35,6 +35,35 @@
     </label>
     <button type="submit">Add to Today's Schedule</button>
   </form>
+
+  <h2>Custom Additions for Week</h2>
+  <table id="customWeekTable">
+    <tr><th>Day</th><th>Time</th><th>Activity</th><th>Action</th></tr>
+    <!-- Custom week schedule rows will be inserted here -->
+  </table>
+  <form id="addCustomWeekForm" style="margin-bottom:20px;">
+    <label>
+      Day:
+      <select id="customWeekDay" required>
+        <option value="Sunday">Sunday</option>
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+        <option value="Friday">Friday</option>
+        <option value="Saturday">Saturday</option>
+      </select>
+    </label>
+    <label>
+      Time:
+      <input type="time" id="customWeekTime" required>
+    </label>
+    <label>
+      Activity:
+      <input type="text" id="customWeekActivity" required>
+    </label>
+    <button type="submit">Add to Week's Custom Additions</button>
+  </form>
   <h1>My Weekly Schedule</h1>
   <div id="currentTask" class="now">Loading current task...</div>
   <div id="comingUp" class="now" style="background:#e1eafc; color:#34495e; margin-bottom:20px;">Loading next activity...</div>
@@ -69,6 +98,7 @@
   </table>
 
   <script>
+
     // Store custom schedule items in memory only (temporary)
     const customScheduleMemory = {};
     function getCustomItems(day) {
@@ -77,6 +107,65 @@
     function setCustomItems(day, items) {
       customScheduleMemory[day] = items;
     }
+
+    // Store custom week schedule items in memory only (temporary)
+    const customWeekMemory = {};
+    function getCustomWeekItems(day) {
+      return customWeekMemory[day] || [];
+    }
+    function setCustomWeekItems(day, items) {
+      customWeekMemory[day] = items;
+    }
+
+    // Render custom week schedule
+    function renderCustomWeekSchedule() {
+      const table = document.getElementById('customWeekTable');
+      while (table.rows.length > 1) table.deleteRow(1);
+      let hasItems = false;
+      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      for (let day of days) {
+        const items = getCustomWeekItems(day);
+        items.forEach((item, idx) => {
+          hasItems = true;
+          let row = table.insertRow();
+          let dayCell = row.insertCell();
+          let timeCell = row.insertCell();
+          let activityCell = row.insertCell();
+          let actionCell = row.insertCell();
+          dayCell.innerText = day;
+          timeCell.innerText = formatTime(item.time);
+          activityCell.innerText = item.activity;
+          let delBtn = document.createElement('button');
+          delBtn.innerText = 'Delete';
+          delBtn.onclick = function() {
+            items.splice(idx, 1);
+            setCustomWeekItems(day, items);
+            renderCustomWeekSchedule();
+          };
+          actionCell.appendChild(delBtn);
+        });
+      }
+      if (!hasItems) {
+        let row = table.insertRow();
+        let cell = row.insertCell();
+        cell.colSpan = 4;
+        cell.innerText = 'No custom additions for this week.';
+      }
+    }
+
+    // Handle add custom week form
+    document.getElementById('addCustomWeekForm').onsubmit = function(e) {
+      e.preventDefault();
+      const day = document.getElementById('customWeekDay').value;
+      const time = document.getElementById('customWeekTime').value;
+      const activity = document.getElementById('customWeekActivity').value;
+      if (!day || !time || !activity) return;
+      let items = getCustomWeekItems(day);
+      items.push({ time, activity });
+      setCustomWeekItems(day, items);
+      renderCustomWeekSchedule();
+      document.getElementById('addCustomWeekForm').reset();
+    };
 
     // Render custom schedule for today
     function renderCustomSchedule() {
@@ -299,10 +388,11 @@ const schedule = {
     }
 
     // --- existing code ---
-    updateTask();
-    renderTodaySchedule();
-    renderWeeklySchedule();
-    renderCustomSchedule();
+  updateTask();
+  renderTodaySchedule();
+  renderWeeklySchedule();
+  renderCustomSchedule();
+  renderCustomWeekSchedule();
 
     // Dropdown for selecting a day to view its schedule
     function renderSelectedDaySchedule(day) {
@@ -342,6 +432,7 @@ const schedule = {
       updateTask();
       renderTodaySchedule();
       renderCustomSchedule();
+      renderCustomWeekSchedule();
     }, 60000);
 
     // Register service worker for PWA
