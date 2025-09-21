@@ -108,66 +108,64 @@
       renderCustomSchedule();
       document.getElementById('addCustomForm').reset();
     };
-    const schedule = {
-      "Sunday": [
-        { start: "18:00", end: "08:00", task: "🌙 Night shift (Sat–Sun)" },
-        { start: "08:30", end: "15:00", task: "😴 Sleep" },
-        { start: "15:00", end: "17:30", task: "☀️ Free hours" },
-        { start: "17:30", end: "18:00", task: "🍴 Dinner / commute" },
-        { start: "18:00", end: "06:00", task: "🌙 Night shift (Sun–Mon)" }
-      ],
-      "Monday": [
-        { start: "06:00", end: "08:15", task: "🌙 Sleep" },
-        { start: "08:15", end: "08:50", task: "🍴 Breakfast / prep" },
-        { start: "09:05", end: "09:55", task: "🎓 MATH 430 (class)" },
-        { start: "10:15", end: "14:15", task: "😴 Sleep" },
-        { start: "14:30", end: "15:30", task: "📚 Study MATH 430" },
-        { start: "15:30", end: "17:15", task: "🍴 Meal / relax" },
-        { start: "17:15", end: "17:50", task: "📋 Work prep" },
-        { start: "18:00", end: "06:00", task: "🌙 Night shift (Mon–Tue)" }
-      ],
-      "Tuesday": [
-        { start: "06:00", end: "12:30", task: "🌙 Sleep" },
-        { start: "12:30", end: "13:15", task: "🍴 Lunch / prep" },
-        { start: "13:35", end: "14:50", task: "🎓 CMPSC 472 (class)" },
-        { start: "15:05", end: "16:05", task: "📚 Study CMPSC 472" },
-        { start: "16:15", end: "17:00", task: "📚 Study CMPSC 463" },
-        { start: "17:00", end: "17:45", task: "🍴 Dinner" },
-        { start: "18:00", end: "21:00", task: "⚠️ CMPSC 463 (class, overlaps night shift)" },
-        { start: "18:00", end: "06:00", task: "🌙 Night shift (Tue–Wed)" }
-      ],
-      "Wednesday": [
-        { start: "06:00", end: "08:15", task: "🌙 Sleep" },
-        { start: "08:15", end: "08:50", task: "🍴 Breakfast / prep" },
-        { start: "09:05", end: "09:55", task: "🎓 MATH 430 (class)" },
-        { start: "10:15", end: "14:15", task: "😴 Sleep" },
-        { start: "14:30", end: "15:30", task: "🏋️ Gym" },
-        { start: "15:45", end: "17:15", task: "🍴 Dinner" },
-        { start: "18:00", end: "21:00", task: "🎓 CMPSC 313 (class)" },
-        { start: "22:30", end: "06:30", task: "🌙 Sleep (Wed–Thu)" }
-      ],
-      "Thursday": [
-        { start: "00:00", end: "12:00", task: "🌙 Sleep in / light start" },
-        { start: "13:35", end: "14:50", task: "🎓 CMPSC 472 (class)" },
-        { start: "15:05", end: "16:05", task: "📚 Study CMPSC 472" },
-        { start: "17:00", end: "18:00", task: "🍴 Dinner" },
-        { start: "18:30", end: "19:30", task: "🏋️ Gym" },
-        { start: "23:00", end: "06:30", task: "🌙 Sleep (Thu–Fri)" }
-      ],
-      "Friday": [
-        { start: "09:05", end: "09:55", task: "🎓 MATH 430 (class)" },
-        { start: "10:15", end: "11:15", task: "📚 Study MATH 430" },
-        { start: "11:30", end: "12:30", task: "🍴 Lunch" },
-        { start: "12:45", end: "13:45", task: "🏋️ Gym" },
-        { start: "13:45", end: "23:00", task: "☀️ Free hours" }
-      ],
-      "Saturday": [
-        { start: "08:00", end: "17:00", task: "☀️ Free hours" },
-        { start: "17:00", end: "17:45", task: "🍴 Dinner / commute" },
-        { start: "18:00", end: "08:00", task: "🌙 Night shift (Sat–Sun)" }
-      ]
-    };
-
+const schedule = {
+"Sunday": [
+{ start: "06:00", end: "08:00", task: "🌙 Night shift (Sat → Sun)" },
+{ start: "08:30", end: "15:00", task: "😴 Sleep" },
+{ start: "15:00", end: "17:30", task: "☀️ Free hours" },
+{ start: "17:30", end: "18:00", task: "🍴 Dinner / prep" },
+{ start: "18:00", end: "24:00", task: "🌙 Night shift" }
+],
+"Monday": [
+{ start: "06:00", end: "08:15", task: "😴 Sleep" },
+{ start: "08:15", end: "08:50", task: "🍳 Breakfast / prep" },
+{ start: "09:05", end: "09:55", task: "🎓 MATH 430 (class)" },
+{ start: "10:15", end: "14:00", task: "😴 Sleep / rest" },
+{ start: "14:30", end: "15:45", task: "🎓 CMPSC 463 (class)" },
+{ start: "16:00", end: "17:15", task: "🍴 Dinner / prep" },
+{ start: "18:00", end: "24:00", task: "🌙 Night shift" }
+],
+"Tuesday": [
+{ start: "06:00", end: "12:30", task: "😴 Sleep" },
+{ start: "12:30", end: "13:15", task: "🍲 Lunch / prep" },
+{ start: "13:35", end: "14:50", task: "🎓 CMPSC 472 (class)" },
+{ start: "15:05", end: "16:05", task: "📚 Study CMPSC 472" },
+{ start: "17:00", end: "17:45", task: "🍴 Dinner" },
+{ start: "18:00", end: "24:00", task: "🌙 Night shift" }
+],
+"Wednesday": [
+{ start: "06:00", end: "08:15", task: "😴 Sleep" },
+{ start: "08:15", end: "08:50", task: "🍳 Breakfast / prep" },
+{ start: "09:05", end: "09:55", task: "🎓 MATH 430 (class)" },
+{ start: "10:15", end: "14:00", task: "😴 Sleep / rest" },
+{ start: "14:30", end: "15:45", task: "🎓 CMPSC 463 (class)" },
+{ start: "16:00", end: "17:30", task: "🍴 Dinner / relax" },
+{ start: "18:00", end: "21:00", task: "🎓 CMPSC 313 (class)" },
+{ start: "22:30", end: "06:30", task: "😴 Sleep (overnight)" }
+],
+"Thursday": [
+{ start: "09:00", end: "12:30", task: "😴 Sleep in / rest" },
+{ start: "12:30", end: "13:15", task: "🍲 Lunch / prep" },
+{ start: "13:35", end: "14:50", task: "🎓 CMPSC 472 (class)" },
+{ start: "15:05", end: "16:05", task: "📚 Study CMPSC 472" },
+{ start: "17:00", end: "18:00", task: "🍴 Dinner" },
+{ start: "18:30", end: "19:30", task: "🏋️ Gym" },
+{ start: "23:00", end: "06:30", task: "😴 Sleep (overnight)" }
+],
+"Friday": [
+{ start: "09:05", end: "09:55", task: "🎓 MATH 430 (class)" },
+{ start: "10:15", end: "11:15", task: "📚 Study MATH 430" },
+{ start: "11:30", end: "12:30", task: "🍲 Lunch" },
+{ start: "12:45", end: "13:45", task: "🏋️ Gym" },
+{ start: "14:00", end: "24:00", task: "☀️ Free hours" }
+],
+"Saturday": [
+{ start: "00:00", end: "08:00", task: "🌙 Night shift (Fri → Sat)" },
+{ start: "08:30", end: "17:00", task: "☀️ Free hours" },
+{ start: "17:00", end: "17:45", task: "🍴 Dinner / prep" },
+{ start: "18:00", end: "24:00", task: "🌙 Night shift" }
+]
+};
     function updateTask() {
       const now = new Date();
       const day = now.toLocaleString('en-US', { weekday: 'long' });
